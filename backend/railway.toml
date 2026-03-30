@@ -9,3 +9,4 @@ restartPolicyMaxRetries = 3
 
 [environment]
 NIXPACKS_NODE_VERSION = "20"
+PORT = "3001"
