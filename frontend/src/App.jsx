@@ -80,7 +80,7 @@ const styles = {
 };
 
 export default function App() {
-  const apiBaseUrl = (import.meta.env.VITE_API_URL || 'https://website-audit-tool-production-b17a.up.railway.app').replace(/\/$/, '');
+  const apiBaseUrl = (import.meta.env.VITE_API_URL || 'https://website-audit-tool-production-a.up.railway.app').replace(/\/$/, '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
