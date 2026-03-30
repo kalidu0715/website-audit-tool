@@ -80,7 +80,6 @@ const styles = {
 };
 
 export default function App() {
-  const apiBaseUrl = (import.meta.env.VITE_API_URL || 'https://website-audit-tool-production-a.up.railway.app').replace(/\/$/, '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
@@ -91,7 +90,7 @@ export default function App() {
     setResult(null);
 
     try {
-      const res = await fetch(`${apiBaseUrl}/api/audit`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/audit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url }),
