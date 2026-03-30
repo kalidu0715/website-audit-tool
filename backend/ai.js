@@ -77,7 +77,7 @@ export async function generateInsights(scraped) {
   const userPrompt = buildUserPrompt(scraped);
 
   const promptLog = {
-    model: 'gemini-1.5-flash-latest',
+    model: 'gemini-pro',
     systemPrompt: SYSTEM_PROMPT,
     userPrompt,
     timestamp: new Date().toISOString(),
@@ -85,7 +85,7 @@ export async function generateInsights(scraped) {
   };
 
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash-latest',
+    model: 'gemini-pro',
     systemInstruction: SYSTEM_PROMPT,
     generationConfig: {
       responseMimeType: 'application/json',
