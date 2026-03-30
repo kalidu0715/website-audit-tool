@@ -1,6 +1,6 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import Groq from 'groq-sdk';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 // ─── System Prompt ───────────────────────────────────────────────────────────
 export const SYSTEM_PROMPT = `You are a senior web strategist at a digital marketing agency specialising in SEO, conversion optimisation, content clarity, and UX. Your job is to audit a single webpage and produce a structured JSON report.
@@ -54,7 +54,6 @@ Required JSON schema:
 // ─── Build User Prompt ────────────────────────────────────────────────────────
 export function buildUserPrompt(scraped) {
   const { url, metrics, aiContext } = scraped;
-
   return `Audit this webpage: ${url}
 
 ## Factual Metrics (extracted by scraper – treat as ground truth)
@@ -72,29 +71,29 @@ ${aiContext.pageTextSample}
 Now produce the structured JSON audit. Be specific. Reference exact metric values in your summaries.`;
 }
 
-// ─── Call Gemini & Parse ──────────────────────────────────────────────────────
+// ─── Call Groq & Parse ────────────────────────────────────────────────────────
 export async function generateInsights(scraped) {
   const userPrompt = buildUserPrompt(scraped);
 
   const promptLog = {
-    model: 'gemini-2.0-flash-lite',
+    model: 'llama-3.3-70b-versatile',
     systemPrompt: SYSTEM_PROMPT,
     userPrompt,
     timestamp: new Date().toISOString(),
     inputMetrics: scraped.metrics,
   };
 
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-2.0-flash-lite',
-    systemInstruction: SYSTEM_PROMPT,
-    generationConfig: {
-      responseMimeType: 'application/json',
-      temperature: 0.4,
-    },
+  const response = await groq.chat.completions.create({
+    model: 'llama-3.3-70b-versatile',
+    temperature: 0.4,
+    response_format: { type: 'json_object' },
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: userPrompt },
+    ],
   });
 
-  const result = await model.generateContent(userPrompt);
-  const rawOutput = result.response.text();
+  const rawOutput = response.choices[0]?.message?.content || '';
 
   let parsed;
   try {
@@ -109,10 +108,7 @@ export async function generateInsights(scraped) {
     promptLog: {
       ...promptLog,
       rawModelOutput: rawOutput,
-      usage: {
-        input_tokens: result.response.usageMetadata?.promptTokenCount ?? 'n/a',
-        output_tokens: result.response.usageMetadata?.candidatesTokenCount ?? 'n/a',
-      },
+      usage: response.usage,
     },
   };
 }
