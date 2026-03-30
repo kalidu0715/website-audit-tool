@@ -1,20 +1,17 @@
 {
-  "name": "backend",
+  "name": "website-audit-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "PageLens website audit tool backend",
+  "main": "server.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
     "cheerio": "^1.2.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "node-fetch": "^3.3.2"
-  },
-  "type": "module"
+  }
 }
