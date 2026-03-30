@@ -1,6 +1,6 @@
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const client = new Anthropic();
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // ─── System Prompt ───────────────────────────────────────────────────────────
 export const SYSTEM_PROMPT = `You are a senior web strategist at a digital marketing agency specialising in SEO, conversion optimisation, content clarity, and UX. Your job is to audit a single webpage and produce a structured JSON report.
@@ -72,29 +72,30 @@ ${aiContext.pageTextSample}
 Now produce the structured JSON audit. Be specific. Reference exact metric values in your summaries.`;
 }
 
-// ─── Call Claude & Parse ─────────────────────────────────────────────────────
+// ─── Call Gemini & Parse ──────────────────────────────────────────────────────
 export async function generateInsights(scraped) {
   const userPrompt = buildUserPrompt(scraped);
 
-  // Log the full prompt exchange for the prompt-logs deliverable
   const promptLog = {
-    model: 'claude-sonnet-4-20250514',
+    model: 'gemini-2.0-flash',
     systemPrompt: SYSTEM_PROMPT,
     userPrompt,
     timestamp: new Date().toISOString(),
     inputMetrics: scraped.metrics,
   };
 
-  const response = await client.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 2000,
-    system: SYSTEM_PROMPT,
-    messages: [{ role: 'user', content: userPrompt }],
+  const model = genAI.getGenerativeModel({
+    model: 'gemini-2.0-flash',
+    systemInstruction: SYSTEM_PROMPT,
+    generationConfig: {
+      responseMimeType: 'application/json',
+      temperature: 0.4,
+    },
   });
 
-  const rawOutput = response.content[0].type === 'text' ? response.content[0].text : '';
+  const result = await model.generateContent(userPrompt);
+  const rawOutput = result.response.text();
 
-  // Parse JSON — strip any accidental markdown fences
   let parsed;
   try {
     const clean = rawOutput.replace(/```json|```/g, '').trim();
@@ -108,7 +109,10 @@ export async function generateInsights(scraped) {
     promptLog: {
       ...promptLog,
       rawModelOutput: rawOutput,
-      usage: response.usage,
+      usage: {
+        input_tokens: result.response.usageMetadata?.promptTokenCount ?? 'n/a',
+        output_tokens: result.response.usageMetadata?.candidatesTokenCount ?? 'n/a',
+      },
     },
   };
 }
