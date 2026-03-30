@@ -90,7 +90,7 @@ export default function App() {
     setResult(null);
 
     try {
-      const res = await fetch('/api/audit', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/audit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url }),
