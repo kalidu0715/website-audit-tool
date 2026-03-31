@@ -3,7 +3,6 @@
 > Built as a 24-hour take-home assessment for EIGHT25MEDIA's AI-Native Software Engineer role.
 
 **Live demo:** https://website-audit-tool-ashy.vercel.app  
-**API endpoint:** `POST https://website-audit-tool-production-a.up.railway.app/api/audit`  
 **GitHub:** [https://github.com/kalidu0715/website-audit-tool](https://github.com/kalidu0715/website-audit-tool)
 
 ---
